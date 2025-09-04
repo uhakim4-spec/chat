@@ -11,19 +11,19 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages, currentUser }: MessageListProps) {
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
+    if (viewportRef.current) {
+      viewportRef.current.scrollTo({
+        top: viewportRef.current.scrollHeight,
         behavior: 'smooth',
       });
     }
   }, [messages]);
 
   return (
-    <ScrollArea className="flex-1 p-4" viewportRef={scrollAreaRef}>
+    <ScrollArea className="flex-1 p-4" viewportRef={viewportRef}>
       <div className="space-y-4">
         {messages.map((message) => (
           <Message key={message.id} message={message} isCurrentUser={message.senderId === currentUser.id} />
