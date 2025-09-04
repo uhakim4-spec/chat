@@ -18,43 +18,29 @@ let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
 
-function initializeFirebase() {
-  if (!getApps().length) {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-  } else {
-    app = getApp();
-    auth = getAuth(app);
-    db = getFirestore(app);
-  }
+if (!getApps().length) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApp();
 }
 
-// Initialize Firebase on first load.
-initializeFirebase();
+auth = getAuth(app);
+db = getFirestore(app);
 
-// Export functions to get the initialized services.
-export const getFirebaseAuth = (): Auth => {
-  return auth;
-};
-
-export const getFirebaseDb = (): Firestore => {
-  return db;
-};
-
+// Export the initialized services.
+export const getFirebaseAuth = (): Auth => auth;
+export const getFirebaseDb = (): Firestore => db;
 
 export const signInWithGoogle = async (): Promise<FirebaseUser | null> => {
-  const authInstance = getFirebaseAuth(); // Use the initialized auth instance
-  const dbInstance = getFirebaseDb();
   const provider = new GoogleAuthProvider();
 
   try {
-    const result = await signInWithPopup(authInstance, provider);
+    const result = await signInWithPopup(auth, provider);
     const user = result.user;
     
     // Create or update user in Firestore
     if (user) {
-      await setDoc(doc(dbInstance, "users", user.uid), {
+      await setDoc(doc(db, "users", user.uid), {
         id: user.uid,
         name: user.displayName,
         avatar: user.photoURL,
