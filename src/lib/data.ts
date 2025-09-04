@@ -8,7 +8,9 @@ export async function getUsers(currentUserId: string): Promise<User[]> {
   const q = query(usersCol, where('id', '!=', currentUserId));
   const userSnapshot = await getDocs(q);
   const userList = userSnapshot.docs.map(doc => doc.data() as User);
-  return userList;
+  
+  // Also filter out the currently logged-in user by their main document ID (UID)
+  return userList.filter(user => user.id !== currentUserId);
 }
 
 export async function getUser(userId: string): Promise<User | null> {
