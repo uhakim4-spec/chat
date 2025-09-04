@@ -1,17 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyD2ryw4xAnhnoydxMm-x7VkPgTdaqSpnqI",
-  authDomain: "chatterbox-ervha.firebaseapp.com",
-  projectId: "chatterbox-ervha",
-  storageBucket: "chatterbox-ervha.firebasestorage.app",
-  messagingSenderId: "1012439073857",
-  appId: "1:1012439073857:web:009b2b41ce29a7f772f2c0"
-};
-
+import { firebaseConfig } from "./firebase-config";
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
