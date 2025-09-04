@@ -1,3 +1,4 @@
+
 // DO NOT RUN THIS SCRIPT IN A PRODUCTION ENVIRONMENT
 // This script is for seeding the database with initial data for development purposes only.
 
@@ -20,6 +21,10 @@ const users = [
 ];
 
 async function seedDatabase() {
+  if (!db) {
+    console.error("Firestore database is not available.");
+    return;
+  }
   console.log('Seeding database...');
   const usersCollection = collection(db, 'users');
 
