@@ -27,7 +27,7 @@ if (!getApps().length) {
 auth = getAuth(app);
 db = getFirestore(app);
 
-// Export the initialized services.
+// Export functions to get the initialized services.
 export const getFirebaseAuth = (): Auth => auth;
 export const getFirebaseDb = (): Firestore => db;
 

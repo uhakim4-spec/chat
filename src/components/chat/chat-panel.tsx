@@ -19,11 +19,11 @@ interface ChatPanelProps {
 export function ChatPanel({ currentUser, selectedUser }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const db = getFirebaseDb();
-
+  
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (input.trim() && selectedUser) {
+      const db = getFirebaseDb();
       await addDoc(collection(db, "messages"), {
         senderId: currentUser.id,
         receiverId: selectedUser.id,
@@ -36,7 +36,7 @@ export function ChatPanel({ currentUser, selectedUser }: ChatPanelProps) {
   
   useEffect(() => {
     if (!selectedUser) return;
-
+    const db = getFirebaseDb();
     const q = query(
       collection(db, 'messages'),
       orderBy('timestamp', 'asc')
@@ -57,7 +57,7 @@ export function ChatPanel({ currentUser, selectedUser }: ChatPanelProps) {
     });
 
     return () => unsubscribe();
-  }, [selectedUser, currentUser.id, db]);
+  }, [selectedUser, currentUser.id]);
 
 
   const lastMessage = useMemo(() => {
