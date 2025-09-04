@@ -1,11 +1,9 @@
 
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
-import { getFirestore, Firestore } from "firebase/firestore";
+import { getFirestore, Firestore, doc, setDoc } from "firebase/firestore";
 import { getAuth, Auth, signInWithPopup, GoogleAuthProvider, User as FirebaseUser } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
 
-// Your web app's Firebase configuration
-// This is securely hardcoded to prevent any loading issues.
+// Your web app's Firebase configuration is securely hardcoded here.
 const firebaseConfig = {
   apiKey: "AIzaSyD2ryw4xAnhnoydxMm-x7VkPgTdaqSpnqI",
   authDomain: "chatterbox-ervha.firebaseapp.com",
@@ -17,7 +15,7 @@ const firebaseConfig = {
 
 // This function ensures that we initialize Firebase only once.
 const getFirebaseApp = (): FirebaseApp => {
-  if (getApps().length === 0) {
+  if (!getApps().length) {
     return initializeApp(firebaseConfig);
   }
   return getApp();
