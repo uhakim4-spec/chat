@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -15,7 +14,11 @@ export function Message({ message, isCurrentUser }: MessageProps) {
   const [formattedTimestamp, setFormattedTimestamp] = useState('');
 
   useEffect(() => {
-    setFormattedTimestamp(format(new Date(message.timestamp), 'p'));
+    if (message.timestamp) {
+      // Convert Firestore Timestamp to JavaScript Date object
+      const date = message.timestamp.toDate();
+      setFormattedTimestamp(format(date, 'p'));
+    }
   }, [message.timestamp]);
 
   return (

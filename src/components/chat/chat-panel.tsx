@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Paperclip, SendHorizonal, Smile } from 'lucide-react';
+import { collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import type { User, Message } from '@/lib/types';
-import { messages as allMessages } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,35 +17,51 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({ currentUser, selectedUser }: ChatPanelProps) {
-  const [messages, setMessages] = useState(allMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
 
-  const conversationMessages = useMemo(() => {
-    return messages.filter(
-      (msg) =>
-        (msg.senderId === currentUser.id && msg.receiverId === selectedUser?.id) ||
-        (msg.senderId === selectedUser?.id && msg.receiverId === currentUser.id)
-    );
-  }, [messages, currentUser.id, selectedUser?.id]);
-
-  const lastMessage = useMemo(() => {
-    return conversationMessages[conversationMessages.length - 1];
-  }, [conversationMessages]);
-
-  const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (input.trim() && selectedUser) {
-      const newMessage: Message = {
-        id: `msg-${Date.now()}`,
+      await addDoc(collection(db, "messages"), {
         senderId: currentUser.id,
         receiverId: selectedUser.id,
         content: input.trim(),
-        timestamp: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, newMessage]);
+        timestamp: serverTimestamp(),
+      });
       setInput('');
     }
   };
+  
+  useEffect(() => {
+    if (!selectedUser) return;
+
+    const q = query(
+      collection(db, 'messages'),
+      orderBy('timestamp', 'asc')
+    );
+    
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const allMessages: Message[] = [];
+      querySnapshot.forEach((doc) => {
+        allMessages.push({ id: doc.id, ...doc.data() } as Message);
+      });
+      
+      const conversationMessages = allMessages.filter(
+        (msg) =>
+          (msg.senderId === currentUser.id && msg.receiverId === selectedUser.id) ||
+          (msg.senderId === selectedUser.id && msg.receiverId === currentUser.id)
+      );
+      setMessages(conversationMessages);
+    });
+
+    return () => unsubscribe();
+  }, [selectedUser, currentUser.id]);
+
+
+  const lastMessage = useMemo(() => {
+    return messages[messages.length - 1];
+  }, [messages]);
 
   const handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion);
@@ -71,7 +88,7 @@ export function ChatPanel({ currentUser, selectedUser }: ChatPanelProps) {
         </div>
       </header>
 
-      <MessageList messages={conversationMessages} currentUser={currentUser} />
+      <MessageList messages={messages} currentUser={currentUser} />
       
       <div className="border-t p-4 space-y-4">
         {lastMessage?.senderId === selectedUser.id && (

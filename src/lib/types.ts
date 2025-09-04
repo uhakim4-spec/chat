@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore';
+
 export interface User {
   id: string;
   name: string;
@@ -10,5 +12,5 @@ export interface Message {
   senderId: string;
   receiverId: string;
   content: string;
-  timestamp: string;
+  timestamp: Timestamp;
 }
