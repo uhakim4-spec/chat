@@ -15,17 +15,14 @@ const firebaseConfig = {
 
 // This "singleton" pattern ensures that we initialize Firebase only once.
 let app: FirebaseApp;
-let auth: Auth;
-let db: Firestore;
-
 if (!getApps().length) {
   app = initializeApp(firebaseConfig);
 } else {
   app = getApp();
 }
 
-auth = getAuth(app);
-db = getFirestore(app);
+const auth: Auth = getAuth(app);
+const db: Firestore = getFirestore(app);
 
 // Export the initialized services.
 export const getFirebaseAuth = (): Auth => auth;
