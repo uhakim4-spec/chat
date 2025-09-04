@@ -13,34 +13,48 @@ const firebaseConfig = {
   appId: "1:1012439073857:web:009b2b41ce29a7f772f2c0"
 };
 
-// This function ensures that we initialize Firebase only once.
-const getFirebaseApp = (): FirebaseApp => {
-  if (!getApps().length) {
-    return initializeApp(firebaseConfig);
-  }
-  return getApp();
-};
+// This "singleton" pattern ensures that we initialize Firebase only once.
+let app: FirebaseApp;
+let auth: Auth;
+let db: Firestore;
 
+function initializeFirebase() {
+  if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+  } else {
+    app = getApp();
+    auth = getAuth(app);
+    db = getFirestore(app);
+  }
+}
+
+// Initialize Firebase on first load.
+initializeFirebase();
+
+// Export functions to get the initialized services.
 export const getFirebaseAuth = (): Auth => {
-  return getAuth(getFirebaseApp());
+  return auth;
 };
 
 export const getFirebaseDb = (): Firestore => {
-  return getFirestore(getFirebaseApp());
+  return db;
 };
 
+
 export const signInWithGoogle = async (): Promise<FirebaseUser | null> => {
-  const auth = getFirebaseAuth();
-  const db = getFirebaseDb();
+  const authInstance = getFirebaseAuth(); // Use the initialized auth instance
+  const dbInstance = getFirebaseDb();
   const provider = new GoogleAuthProvider();
 
   try {
-    const result = await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(authInstance, provider);
     const user = result.user;
     
     // Create or update user in Firestore
     if (user) {
-      await setDoc(doc(db, "users", user.uid), {
+      await setDoc(doc(dbInstance, "users", user.uid), {
         id: user.uid,
         name: user.displayName,
         avatar: user.photoURL,
