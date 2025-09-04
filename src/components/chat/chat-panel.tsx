@@ -22,7 +22,7 @@ export function ChatPanel({ currentUser, selectedUser }: ChatPanelProps) {
 
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (input.trim() && selectedUser) {
+    if (input.trim() && selectedUser && db) {
       await addDoc(collection(db, "messages"), {
         senderId: currentUser.id,
         receiverId: selectedUser.id,
@@ -34,7 +34,7 @@ export function ChatPanel({ currentUser, selectedUser }: ChatPanelProps) {
   };
   
   useEffect(() => {
-    if (!selectedUser) return;
+    if (!selectedUser || !db) return;
 
     const q = query(
       collection(db, 'messages'),

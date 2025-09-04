@@ -3,6 +3,8 @@ import { db } from './firebase';
 import type { User } from './types';
 
 export async function getUsers(currentUserId: string): Promise<User[]> {
+  if (!db) return [];
+  
   const usersCol = collection(db, 'users');
   // Exclude current user from the list
   const q = query(usersCol, where('id', '!=', currentUserId));
@@ -14,6 +16,8 @@ export async function getUsers(currentUserId: string): Promise<User[]> {
 }
 
 export async function getUser(userId: string): Promise<User | null> {
+    if (!db) return null;
+    
     const userRef = doc(db, 'users', userId);
     const userSnap = await getDoc(userRef);
     if (userSnap.exists()) {

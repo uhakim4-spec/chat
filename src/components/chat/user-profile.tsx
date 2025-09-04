@@ -21,8 +21,10 @@ export function UserProfile({ user }: UserProfileProps) {
   const router = useRouter();
 
   const handleSignOut = async () => {
-    await auth.signOut();
-    router.push('/login');
+    if (auth) {
+      await auth.signOut();
+      router.push('/login');
+    }
   };
 
   return (
