@@ -1,36 +1,42 @@
 
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getFirestore, Firestore } from "firebase/firestore";
-import { getAuth, Auth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, Auth, signInWithPopup, GoogleAuthProvider, User } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { firebaseConfig } from "./firebase-config";
 
-let app: FirebaseApp;
-if (getApps().length === 0) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApp();
-}
+// This function ensures that we initialize Firebase only once.
+const getFirebaseApp = (): FirebaseApp => {
+  if (getApps().length === 0) {
+    return initializeApp(firebaseConfig);
+  }
+  return getApp();
+};
 
-const auth: Auth = getAuth(app);
-const db: Firestore = getFirestore(app);
+export const getFirebaseAuth = (): Auth => {
+  return getAuth(getFirebaseApp());
+};
 
-const provider = new GoogleAuthProvider();
+export const getFirebaseDb = (): Firestore => {
+  return getFirestore(getFirebaseApp());
+};
 
-export const signInWithGoogle = async () => {
+export const signInWithGoogle = async (): Promise<User | null> => {
+  const auth = getFirebaseAuth();
+  const db = getFirebaseDb();
+  const provider = new GoogleAuthProvider();
+
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
     
     // Create or update user in Firestore
-    if (db) {
-        await setDoc(doc(db, "users", user.uid), {
-          id: user.uid,
-          name: user.displayName,
-          avatar: user.photoURL,
-          status: 'online'
-        }, { merge: true });
-    }
+    await setDoc(doc(db, "users", user.uid), {
+      id: user.uid,
+      name: user.displayName,
+      avatar: user.photoURL,
+      status: 'online'
+    }, { merge: true });
 
     return user;
   } catch (error) {
@@ -38,5 +44,3 @@ export const signInWithGoogle = async () => {
     return null;
   }
 };
-
-export { db, auth };

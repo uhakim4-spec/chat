@@ -3,7 +3,7 @@
 // This script is for seeding the database with initial data for development purposes only.
 
 import { collection, doc, setDoc } from 'firebase/firestore';
-import { db } from './firebase';
+import { getFirebaseDb } from './firebase';
 
 const users = [
   {
@@ -21,10 +21,8 @@ const users = [
 ];
 
 async function seedDatabase() {
-  if (!db) {
-    console.error("Firestore database is not available.");
-    return;
-  }
+  const db = getFirebaseDb();
+  
   console.log('Seeding database...');
   const usersCollection = collection(db, 'users');
 

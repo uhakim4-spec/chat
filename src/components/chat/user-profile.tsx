@@ -11,7 +11,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import type { User } from '@/lib/types';
-import { auth } from '@/lib/firebase';
+import { getFirebaseAuth } from '@/lib/firebase';
 
 interface UserProfileProps {
   user: User;
@@ -21,10 +21,9 @@ export function UserProfile({ user }: UserProfileProps) {
   const router = useRouter();
 
   const handleSignOut = async () => {
-    if (auth) {
-      await auth.signOut();
-      router.push('/login');
-    }
+    const auth = getFirebaseAuth();
+    await auth.signOut();
+    router.push('/login');
   };
 
   return (

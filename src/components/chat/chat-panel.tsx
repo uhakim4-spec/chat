@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Paperclip, SendHorizonal, Smile } from 'lucide-react';
 import { collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { getFirebaseDb } from '@/lib/firebase';
 import type { User, Message } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -19,10 +19,11 @@ interface ChatPanelProps {
 export function ChatPanel({ currentUser, selectedUser }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
+  const db = getFirebaseDb();
 
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (input.trim() && selectedUser && db) {
+    if (input.trim() && selectedUser) {
       await addDoc(collection(db, "messages"), {
         senderId: currentUser.id,
         receiverId: selectedUser.id,
@@ -34,7 +35,7 @@ export function ChatPanel({ currentUser, selectedUser }: ChatPanelProps) {
   };
   
   useEffect(() => {
-    if (!selectedUser || !db) return;
+    if (!selectedUser) return;
 
     const q = query(
       collection(db, 'messages'),
@@ -56,7 +57,7 @@ export function ChatPanel({ currentUser, selectedUser }: ChatPanelProps) {
     });
 
     return () => unsubscribe();
-  }, [selectedUser, currentUser.id]);
+  }, [selectedUser, currentUser.id, db]);
 
 
   const lastMessage = useMemo(() => {
