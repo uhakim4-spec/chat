@@ -1,9 +1,19 @@
 
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getFirestore, Firestore } from "firebase/firestore";
-import { getAuth, Auth, signInWithPopup, GoogleAuthProvider, User } from "firebase/auth";
+import { getAuth, Auth, signInWithPopup, GoogleAuthProvider, User as FirebaseUser } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { firebaseConfig } from "./firebase-config";
+
+// Your web app's Firebase configuration
+// This is securely hardcoded to prevent any loading issues.
+const firebaseConfig = {
+  apiKey: "AIzaSyD2ryw4xAnhnoydxMm-x7VkPgTdaqSpnqI",
+  authDomain: "chatterbox-ervha.firebaseapp.com",
+  projectId: "chatterbox-ervha",
+  storageBucket: "chatterbox-ervha.appspot.com",
+  messagingSenderId: "1012439073857",
+  appId: "1:1012439073857:web:009b2b41ce29a7f772f2c0"
+};
 
 // This function ensures that we initialize Firebase only once.
 const getFirebaseApp = (): FirebaseApp => {
@@ -21,7 +31,7 @@ export const getFirebaseDb = (): Firestore => {
   return getFirestore(getFirebaseApp());
 };
 
-export const signInWithGoogle = async (): Promise<User | null> => {
+export const signInWithGoogle = async (): Promise<FirebaseUser | null> => {
   const auth = getFirebaseAuth();
   const db = getFirebaseDb();
   const provider = new GoogleAuthProvider();
@@ -31,12 +41,14 @@ export const signInWithGoogle = async (): Promise<User | null> => {
     const user = result.user;
     
     // Create or update user in Firestore
-    await setDoc(doc(db, "users", user.uid), {
-      id: user.uid,
-      name: user.displayName,
-      avatar: user.photoURL,
-      status: 'online'
-    }, { merge: true });
+    if (user) {
+      await setDoc(doc(db, "users", user.uid), {
+        id: user.uid,
+        name: user.displayName,
+        avatar: user.photoURL,
+        status: 'online'
+      }, { merge: true });
+    }
 
     return user;
   } catch (error) {
