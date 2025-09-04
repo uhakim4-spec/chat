@@ -1,3 +1,7 @@
+
+'use client';
+
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import type { Message as MessageType } from '@/lib/types';
 import { format } from 'date-fns';
@@ -8,6 +12,12 @@ interface MessageProps {
 }
 
 export function Message({ message, isCurrentUser }: MessageProps) {
+  const [formattedTimestamp, setFormattedTimestamp] = useState('');
+
+  useEffect(() => {
+    setFormattedTimestamp(format(new Date(message.timestamp), 'p'));
+  }, [message.timestamp]);
+
   return (
     <div className={cn('flex items-end gap-2', isCurrentUser ? 'justify-end' : 'justify-start')}>
       <div
@@ -17,9 +27,11 @@ export function Message({ message, isCurrentUser }: MessageProps) {
         )}
       >
         <p className="text-sm">{message.content}</p>
-        <p className={cn("text-xs mt-1", isCurrentUser ? "text-primary-foreground/70" : "text-muted-foreground")}>
-          {format(new Date(message.timestamp), 'p')}
-        </p>
+        {formattedTimestamp && (
+            <p className={cn("text-xs mt-1", isCurrentUser ? "text-primary-foreground/70" : "text-muted-foreground")}>
+                {formattedTimestamp}
+            </p>
+        )}
       </div>
     </div>
   );
